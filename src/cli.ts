@@ -8,7 +8,7 @@ import { BarrelGenerator } from './generator.js';
 const program = new Command();
 
 program
-  .name('internal-barrel-maker')
+  .name('ollypop')
   .description('Generate barrel files for TypeScript projects')
   .version('1.0.0');
 
@@ -94,7 +94,7 @@ program
       // Provide helpful context for common errors
       if (errorMessage.includes('Configuration file not found')) {
         console.error(`\n💡 Tip: Create a configuration file with:`);
-        console.error(`   npx internal-barrel-maker init`);
+        console.error(`   npx ollypop init`);
       } else if (errorMessage.includes('Configuration validation failed')) {
         console.error(`\n💡 Tip: Check your configuration syntax and required fields`);
       } else if (errorMessage.includes('No files found')) {

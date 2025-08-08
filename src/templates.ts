@@ -236,11 +236,13 @@ export class TemplateEngine {
 
     // Determine working directory from the export template pattern
     // Extract the base path before the first variable
-    const exportPathMatch = exportTemplate.match(/^export \* from ['"](.+?)\{/);
+    // Support both "export * from" and "export * as Name from" patterns
+    // Use a more flexible regex to find the 'from' clause and extract the path before variables
+    const exportPathMatch = exportTemplate.match(/from ['"]([^'"]*)\{/);
     
     if (!exportPathMatch) {
       throw new Error(
-        'Cannot determine path from export template. Expected format: export * from "./path/{variable}/..."'
+        'Cannot determine path from export template. Expected format: export * from "./path/{variable}/..." or export * as Name from "./path/{variable}/..."'
       );
     }
 

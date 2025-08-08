@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "barrels": [
+    {
+      "name": "cutie-factories",
+      "output": "./src/cutie/index.ts",
+      "template": {
+        "name": "variable-template",
+        "export": "export * as Cutie{fileName:pascal}Factory from './{fileName:raw}.ts'"
+      },
+      "options": {
+        "preserveExtensions": true,
+        "extensions": [".ts"],
+        "validateExports": false,
+        "dryRun": false
+      }
+    }
+  ]
+}
