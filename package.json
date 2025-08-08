@@ -1,5 +1,5 @@
 {
-  "name": "ollypop-ts",
+  "name": "@validkeys/ollypop-ts",
   "version": "1.0.0",
   "main": "dist/index.js",
   "type": "commonjs",
@@ -26,7 +26,7 @@
     "require": "./dist/index.js"
   },
   "description": "Automatic TypeScript barrel file generator CLI.",
-  "author": "Kyle Davis <kyledavis@validkeys.io>",
+  "author": "Kyle Davis <validkeys@gmail.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/validkeys/ollypop-ts.git"
