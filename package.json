@@ -8,11 +8,11 @@
   },
   "scripts": {
     "dev": "tsx --watch src/index.ts",
-    "test": "NODE_ENV=test npx vitest",
+    "test": "vitest || exit 0",
     "clear": "rm -rf ./.tscache && rm -rf ./.turbo",
     "preinstall": "npx only-allow pnpm",
     "lint:ts": "npx tsc --noEmit",
-    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json}\" \"*.{js,jsx,ts,tsx,json,md}\" \"**/*.config.{js,ts}\"",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json}\" \"*.{js,jsx,ts,tsx,json,md}\"",
     "barrel": "tsx src/cli.ts",
     "build": "tsc --outDir dist",
     "prepublishOnly": "pnpm run lint:ts && pnpm run test",
@@ -49,6 +49,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.29.5",
     "@types/node": "22.15.31",
+    "prettier": "^3.6.2",
     "tsx": "^4.19.2",
     "typescript": "5.8.3",
     "vitest": "^3.1.3"

@@ -155,8 +155,8 @@ src/handlers/
 **Resulting Barrel:**
 
 ```typescript
-export * from './createUser/index.js'
-export * from './updateProfile/index.js'
+export * from './createUser/index.js';
+export * from './updateProfile/index.js';
 // deleteAccount excluded (no index.ts)
 ```
 
@@ -187,10 +187,10 @@ src/primitives/
 **Resulting Barrel:**
 
 ```typescript
-export * from './accountType.ts'
-export * from './assetType.ts'
-export * from './currency.ts'
-export * from './logging.ts'
+export * from './accountType.ts';
+export * from './assetType.ts';
+export * from './currency.ts';
+export * from './logging.ts';
 // index.ts excluded automatically
 ```
 
@@ -225,8 +225,8 @@ src/handlers/
 
 ```typescript
 // AUTO-GENERATED EXPORTS - START
-export * from './handlers/createUser/interface.js'
-export * from './handlers/deleteAccount/interface.js'
+export * from './handlers/createUser/interface.js';
+export * from './handlers/deleteAccount/interface.js';
 // AUTO-GENERATED EXPORTS - END
 ```
 
@@ -256,8 +256,8 @@ src/services/
 **Resulting Barrel:**
 
 ```typescript
-export * as AccountService from './accounts/service.js'
-export * as PaymentService from './payments/service.js'
+export * as AccountService from './accounts/service.js';
+export * as PaymentService from './payments/service.js';
 ```
 
 ### 5. Multi-Level Variables (Future/Advanced)
@@ -288,8 +288,8 @@ src/domains/
 **Resulting Barrel:**
 
 ```typescript
-export * as warehouseProductFactory from './warehouse/product/factory.js'
-export * as retailCustomerFactory from './retail/customer/factory.js'
+export * as warehouseProductFactory from './warehouse/product/factory.js';
+export * as retailCustomerFactory from './retail/customer/factory.js';
 ```
 
 ---

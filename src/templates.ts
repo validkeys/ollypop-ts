@@ -1,177 +1,163 @@
-import fs from 'fs'
-import inflection from 'inflection'
-import path from 'path'
-import type { FileInfo, GenerationOptions } from './types.js'
+import fs from 'fs';
+import inflection from 'inflection';
+import path from 'path';
+import type { FileInfo, GenerationOptions } from './types.js';
 
 export interface TemplateContext {
-  files: FileInfo[]
-  options: GenerationOptions
-  outputPath?: string
-  templateConfig?: any // Will contain the template configuration
-  banner?: string
+  files: FileInfo[];
+  options: GenerationOptions;
+  outputPath?: string;
+  templateConfig?: any; // Will contain the template configuration
+  banner?: string;
   metadata: {
-    generatedAt: string
-    fileCount: number
-  }
+    generatedAt: string;
+    fileCount: number;
+  };
 }
 
 export class TemplateEngine {
-  private templates: Map<string, (context: TemplateContext) => string> =
-    new Map()
+  private templates: Map<string, (context: TemplateContext) => string> = new Map();
 
   constructor() {
-    this.registerDefaultTemplates()
+    this.registerDefaultTemplates();
   }
 
   private registerDefaultTemplates(): void {
     // Revolutionary variable-based template system
-    this.templates.set('variable-template', ctx =>
-      this.generateVariableTemplate(ctx)
-    )
+    this.templates.set('variable-template', (ctx) => this.generateVariableTemplate(ctx));
   }
 
   generate(templateName: string, context: TemplateContext): string {
-    const template = this.templates.get(templateName)
+    const template = this.templates.get(templateName);
     if (!template) {
-      throw new Error(`Template '${templateName}' not found`)
+      throw new Error(`Template '${templateName}' not found`);
     }
 
-    let content = template(context)
+    let content = template(context);
 
     // Add banner if provided
     if (context.banner) {
-      content = this.addBanner(context.banner, content)
+      content = this.addBanner(context.banner, content);
     }
 
-    return content
+    return content;
   }
 
-  registerTemplate(
-    name: string,
-    template: (context: TemplateContext) => string
-  ): void {
-    this.templates.set(name, template)
+  registerTemplate(name: string, template: (context: TemplateContext) => string): void {
+    this.templates.set(name, template);
   }
 
   private toPascalCase(str: string): string {
     return str
       .replace(/[-_.]/g, ' ')
       .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join('')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('');
   }
 
   private toCamelCase(str: string): string {
-    const pascal = this.toPascalCase(str)
-    return pascal.charAt(0).toLowerCase() + pascal.slice(1)
+    const pascal = this.toPascalCase(str);
+    return pascal.charAt(0).toLowerCase() + pascal.slice(1);
   }
 
   private toKebabCase(str: string): string {
     return str
       .replace(/([a-z])([A-Z])/g, '$1-$2')
       .replace(/[\s_]+/g, '-')
-      .toLowerCase()
+      .toLowerCase();
   }
 
   private toSingular(str: string): string {
-    return inflection.singularize(str)
+    return inflection.singularize(str);
   }
 
   private toPlural(str: string): string {
-    return inflection.pluralize(str)
+    return inflection.pluralize(str);
   }
 
   private trimPrefix(str: string, prefixes?: string): string {
     // Parse prefixes parameter or use default
-    const prefixList = prefixes
-      ? prefixes.split(',').map(p => p.trim())
-      : ['warehouse-', 'ops-'] // Default for backward compatibility
+    const prefixList = prefixes ? prefixes.split(',').map((p) => p.trim()) : ['warehouse-', 'ops-']; // Default for backward compatibility
 
     for (const prefix of prefixList) {
       if (str.startsWith(prefix)) {
-        return str.substring(prefix.length)
+        return str.substring(prefix.length);
       }
     }
-    return str
+    return str;
   }
 
   private trimSuffix(str: string, suffixes?: string): string {
     // Parse suffixes parameter - no default, require explicit specification
     if (!suffixes) {
-      console.warn(
-        'trimSuffix requires suffixes parameter, e.g., trimSuffix:Service,Manager'
-      )
-      return str
+      console.warn('trimSuffix requires suffixes parameter, e.g., trimSuffix:Service,Manager');
+      return str;
     }
 
-    const suffixList = suffixes.split(',').map(s => s.trim())
+    const suffixList = suffixes.split(',').map((s) => s.trim());
 
     for (const suffix of suffixList) {
       if (str.endsWith(suffix)) {
-        return str.substring(0, str.length - suffix.length)
+        return str.substring(0, str.length - suffix.length);
       }
     }
-    return str
+    return str;
   }
 
   private addPrefix(str: string, prefix?: string): string {
     if (!prefix) {
-      console.warn(
-        'addPrefix requires prefix parameter, e.g., addPrefix:I,Base'
-      )
-      return str
+      console.warn('addPrefix requires prefix parameter, e.g., addPrefix:I,Base');
+      return str;
     }
 
-    return prefix + str
+    return prefix + str;
   }
 
   private addSuffix(str: string, suffix?: string): string {
     if (!suffix) {
-      console.warn(
-        'addSuffix requires suffix parameter, e.g., addSuffix:Factory,Service'
-      )
-      return str
+      console.warn('addSuffix requires suffix parameter, e.g., addSuffix:Factory,Service');
+      return str;
     }
 
-    return str + suffix
+    return str + suffix;
   }
 
   private replaceText(str: string, replaceParams?: string): string {
     if (!replaceParams) {
       console.warn(
         'replace requires parameters, e.g., replace:old,new or replace:pattern1,replacement1;pattern2,replacement2'
-      )
-      return str
+      );
+      return str;
     }
 
     // Support multiple replacements separated by semicolon
-    const replacements = replaceParams.split(';')
-    let result = str
+    const replacements = replaceParams.split(';');
+    let result = str;
 
     for (const replacement of replacements) {
-      const [search, replace] = replacement.split(',').map(s => s.trim())
+      const [search, replace] = replacement.split(',').map((s) => s.trim());
       if (search && replace !== undefined) {
         // Simple string replacement (not regex for security/simplicity)
-        result = result.split(search).join(replace)
+        result = result.split(search).join(replace);
       }
     }
 
-    return result
+    return result;
   }
 
   private capitalize(str: string): string {
-    if (!str) return str
-    return str.charAt(0).toUpperCase() + str.slice(1)
+    if (!str) return str;
+    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
   private uncapitalize(str: string): string {
-    if (!str) return str
-    return str.charAt(0).toLowerCase() + str.slice(1)
+    if (!str) return str;
+    return str.charAt(0).toLowerCase() + str.slice(1);
   }
 
   private addBanner(banner: string, content: string): string {
-    const bannerLines = banner.split('\n').map(line => `// ${line}`)
-    return bannerLines.join('\n') + '\n\n' + content
+    const bannerLines = banner.split('\n').map((line) => `// ${line}`);
+    return bannerLines.join('\n') + '\n\n' + content;
   }
 
   /**
@@ -180,49 +166,49 @@ export class TemplateEngine {
    */
   private applyTransform(value: string, transform: string): string {
     // Parse transform and parameters
-    const [transformName, ...paramParts] = transform.split(':')
-    const params = paramParts.join(':') // Rejoin in case there were multiple colons
+    const [transformName, ...paramParts] = transform.split(':');
+    const params = paramParts.join(':'); // Rejoin in case there were multiple colons
 
     switch (transformName.toLowerCase()) {
       case 'raw':
-        return value
+        return value;
       case 'camel':
-        return this.toCamelCase(value)
+        return this.toCamelCase(value);
       case 'kebab':
-        return this.toKebabCase(value)
+        return this.toKebabCase(value);
       case 'pascal':
-        return this.toPascalCase(value)
+        return this.toPascalCase(value);
       case 'singular':
-        return this.toSingular(value)
+        return this.toSingular(value);
       case 'plural':
-        return this.toPlural(value)
+        return this.toPlural(value);
       case 'trimprefix':
       case 'trim-prefix':
-        return this.trimPrefix(value, params)
+        return this.trimPrefix(value, params);
       case 'trimsuffix':
       case 'trim-suffix':
-        return this.trimSuffix(value, params)
+        return this.trimSuffix(value, params);
       case 'addprefix':
       case 'add-prefix':
-        return this.addPrefix(value, params)
+        return this.addPrefix(value, params);
       case 'addsuffix':
       case 'add-suffix':
-        return this.addSuffix(value, params)
+        return this.addSuffix(value, params);
       case 'replace':
-        return this.replaceText(value, params)
+        return this.replaceText(value, params);
       case 'uppercase':
-        return value.toUpperCase()
+        return value.toUpperCase();
       case 'lowercase':
-        return value.toLowerCase()
+        return value.toLowerCase();
       case 'capitalize':
-        return this.capitalize(value)
+        return this.capitalize(value);
       case 'uncapitalize':
-        return this.uncapitalize(value)
+        return this.uncapitalize(value);
       default:
         console.warn(
           `Unknown transformation: ${transformName}. Available: raw, camel, kebab, pascal, singular, plural, trimPrefix, trimSuffix, addPrefix, addSuffix, replace, uppercase, lowercase, capitalize, uncapitalize`
-        )
-        return value
+        );
+        return value;
     }
   }
 
@@ -231,59 +217,59 @@ export class TemplateEngine {
    * Extracts variables from the path template and applies them to generate exports
    */
   private generateVariableTemplate(ctx: TemplateContext): string {
-    const { templateConfig, outputPath } = ctx
+    const { templateConfig, outputPath } = ctx;
 
     if (!templateConfig?.export) {
-      throw new Error('Variable template requires an "export" configuration')
+      throw new Error('Variable template requires an "export" configuration');
     }
 
-    const exportTemplate = templateConfig.export
+    const exportTemplate = templateConfig.export;
 
     // Extract path variables from the template
-    const pathVariables = this.extractPathVariables(exportTemplate)
+    const pathVariables = this.extractPathVariables(exportTemplate);
 
     if (pathVariables.length === 0) {
       throw new Error(
         'No path variables found in export template. Use {variableName} in the path portion.'
-      )
+      );
     }
 
     // Determine working directory from the export template pattern
-    // Extract the base path before the first variable  
-    const exportPathMatch = exportTemplate.match(/^export \* from ['"](.+?)\{/)
+    // Extract the base path before the first variable
+    const exportPathMatch = exportTemplate.match(/^export \* from ['"](.+?)\{/);
     if (!exportPathMatch) {
       throw new Error(
         'Cannot determine path from export template. Expected format: export * from "./path/{variable}/..."'
-      )
+      );
     }
-    
-    let exportPath = exportPathMatch[1]
-    
+
+    let exportPath = exportPathMatch[1];
+
     // Remove the final slash if present
     if (exportPath.endsWith('/')) {
-      exportPath = exportPath.slice(0, -1)
+      exportPath = exportPath.slice(0, -1);
     }
-    
+
     // Resolve the export path relative to the output file's directory
-    let workingDirectory: string
-    
+    let workingDirectory: string;
+
     if (exportPath.startsWith('./')) {
       // Path is relative to the output file's directory
-      const outputDir = path.dirname(outputPath || '.')
-      const relativePath = exportPath.substring(2) // Remove './'
-      
+      const outputDir = path.dirname(outputPath || '.');
+      const relativePath = exportPath.substring(2); // Remove './'
+
       if (!relativePath || relativePath === '.') {
         // export * from './{variable}/...' - scan from output directory
-        workingDirectory = outputDir
+        workingDirectory = outputDir;
       } else {
         // export * from './some/path/{variable}/...' - resolve relative to output directory
-        workingDirectory = path.join(outputDir, relativePath)
+        workingDirectory = path.join(outputDir, relativePath);
       }
     } else if (exportPath.startsWith('../')) {
-      throw new Error('Export templates cannot use parent directory references (../)')
+      throw new Error('Export templates cannot use parent directory references (../)');
     } else {
       // Absolute path or no leading ./
-      workingDirectory = exportPath || '.'
+      workingDirectory = exportPath || '.';
     }
 
     // Scan for matching directory structures or files
@@ -292,27 +278,24 @@ export class TemplateEngine {
       pathVariables,
       exportTemplate,
       outputPath
-    )
+    );
 
     // Filter to only include paths where the target file actually exists
     const filteredPaths = this.filterExistingFiles(
       matchingPaths,
       exportTemplate,
       outputPath || '.'
-    )
+    );
 
     // Generate export statements
-    const lines: string[] = []
+    const lines: string[] = [];
 
     for (const pathMatch of filteredPaths) {
-      const resolvedExport = this.resolveVariableTemplate(
-        exportTemplate,
-        pathMatch.variables
-      )
-      lines.push(resolvedExport)
+      const resolvedExport = this.resolveVariableTemplate(exportTemplate, pathMatch.variables);
+      lines.push(resolvedExport);
     }
 
-    return lines.join('\n') + '\n'
+    return lines.join('\n') + '\n';
   }
 
   /**
@@ -320,18 +303,18 @@ export class TemplateEngine {
    * e.g., "./{namespace}/{handler}/index.ts" → ["namespace", "handler"]
    */
   private extractPathVariables(template: string): string[] {
-    const pathPattern = /\{([^}:]+)(?::(\w+))?\}/g
-    const variables: string[] = []
-    let match
+    const pathPattern = /\{([^}:]+)(?::(\w+))?\}/g;
+    const variables: string[] = [];
+    let match;
 
     while ((match = pathPattern.exec(template)) !== null) {
-      const varName = match[1]
+      const varName = match[1];
       if (!variables.includes(varName)) {
-        variables.push(varName)
+        variables.push(varName);
       }
     }
 
-    return variables
+    return variables;
   }
 
   /**
@@ -341,9 +324,8 @@ export class TemplateEngine {
    */
   private isFileBasedPattern(template: string): boolean {
     // Look for patterns like {variable}.ext where ext is a common file extension
-    const fileExtensionPattern =
-      /\{[^}:]+(?::[^}]+)?\}\.(ts|js|tsx|jsx|json|md)(?:['"`]|$)/
-    return fileExtensionPattern.test(template)
+    const fileExtensionPattern = /\{[^}:]+(?::[^}]+)?\}\.(ts|js|tsx|jsx|json|md)(?:['"`]|$)/;
+    return fileExtensionPattern.test(template);
   }
 
   /**
@@ -355,62 +337,60 @@ export class TemplateEngine {
     exportTemplate: string,
     outputPath?: string
   ): Array<{
-    path: string
-    variables: Map<string, { value: string; casing: string }>
+    path: string;
+    variables: Map<string, { value: string; casing: string }>;
   }> {
     const results: Array<{
-      path: string
-      variables: Map<string, { value: string; casing: string }>
-    }> = []
+      path: string;
+      variables: Map<string, { value: string; casing: string }>;
+    }> = [];
 
     try {
-      const entries = fs.readdirSync(cwd, { withFileTypes: true })
+      const entries = fs.readdirSync(cwd, { withFileTypes: true });
 
       // Determine if we're scanning for files or directories based on the export template
-      const isFileBasedPattern = this.isFileBasedPattern(exportTemplate)
+      const isFileBasedPattern = this.isFileBasedPattern(exportTemplate);
 
       if (isFileBasedPattern) {
         // Scan for files when pattern includes file extensions
         const files = entries
           .filter((entry: any) => entry.isFile() && entry.name.endsWith('.ts'))
-          .map((entry: any) => entry.name)
+          .map((entry: any) => entry.name);
 
         // For single variable {file}, map each file (without extension)
         if (pathVariables.length === 1) {
           for (const file of files) {
             // Skip the output file itself to avoid self-reference
             if (outputPath && path.basename(outputPath) === file) {
-              continue
+              continue;
             }
 
-            const fileNameWithoutExt = path.parse(file).name
+            const fileNameWithoutExt = path.parse(file).name;
             const variables = new Map([
-              [pathVariables[0], { value: fileNameWithoutExt, casing: 'raw' }]
-            ])
+              [pathVariables[0], { value: fileNameWithoutExt, casing: 'raw' }],
+            ]);
 
             results.push({
               path: `${cwd}/${file}`,
-              variables
-            })
+              variables,
+            });
           }
         }
       } else {
         // Original directory-based scanning
         const directories = entries
           .filter((entry: any) => entry.isDirectory())
-          .map((entry: any) => entry.name)
+          .map((entry: any) => entry.name);
 
         // For single variable {dir}, map each directory
         if (pathVariables.length === 1) {
           for (const dir of directories) {
-            const variables = new Map([
-              [pathVariables[0], { value: dir, casing: 'raw' }]
-            ])
+            const variables = new Map([[pathVariables[0], { value: dir, casing: 'raw' }]]);
 
             results.push({
               path: `${cwd}/${dir}`,
-              variables
-            })
+              variables,
+            });
           }
         }
       }
@@ -418,10 +398,10 @@ export class TemplateEngine {
       // TODO: Handle multi-level variables like {parent}/{child}
       // This would require recursive directory scanning
     } catch (error) {
-      console.warn(`Warning: Could not scan directory ${cwd}:`, error)
+      console.warn(`Warning: Could not scan directory ${cwd}:`, error);
     }
 
-    return results
+    return results;
   }
 
   /**
@@ -433,86 +413,83 @@ export class TemplateEngine {
    */
   private filterExistingFiles(
     paths: Array<{
-      path: string
-      variables: Map<string, { value: string; casing: string }>
+      path: string;
+      variables: Map<string, { value: string; casing: string }>;
     }>,
     exportTemplate: string,
     outputPath: string
   ): Array<{
-    path: string
-    variables: Map<string, { value: string; casing: string }>
+    path: string;
+    variables: Map<string, { value: string; casing: string }>;
   }> {
     // For file-based patterns, we already scanned for existing files, so no additional filtering needed
-    const isFileBasedPattern = this.isFileBasedPattern(exportTemplate)
+    const isFileBasedPattern = this.isFileBasedPattern(exportTemplate);
     if (isFileBasedPattern) {
-      return paths
+      return paths;
     }
 
     // Original directory-based filtering logic
-    return paths.filter(pathMatch => {
+    return paths.filter((pathMatch) => {
       // Resolve the template to get the actual import path
-      let resolvedPath = exportTemplate
+      let resolvedPath = exportTemplate;
 
       // Replace variables in the path
       for (const [varName, varData] of pathMatch.variables) {
         // Enhanced pattern matching with chained transformations
         // Supports: {var}, {var:transform}, {var:transform1|transform2|transform3}
-        const variablePattern = new RegExp(`\\{${varName}(?::([^}]+))?\\}`, 'g')
-        let match
+        const variablePattern = new RegExp(`\\{${varName}(?::([^}]+))?\\}`, 'g');
+        let match;
 
         while ((match = variablePattern.exec(resolvedPath)) !== null) {
-          const fullMatch = match[0]
-          const transformChain = match[1] || '' // Empty string means default (PascalCase)
+          const fullMatch = match[0];
+          const transformChain = match[1] || ''; // Empty string means default (PascalCase)
 
-          let transformedValue = varData.value
+          let transformedValue = varData.value;
 
           if (transformChain) {
             // Split by | to get individual transforms
-            const transforms = transformChain.split('|')
+            const transforms = transformChain.split('|');
 
             for (const transform of transforms) {
-              transformedValue = this.applyTransform(
-                transformedValue,
-                transform.trim()
-              )
+              transformedValue = this.applyTransform(transformedValue, transform.trim());
             }
           } else {
             // Default transformation is PascalCase
-            transformedValue = this.toPascalCase(transformedValue)
+            transformedValue = this.toPascalCase(transformedValue);
           }
 
           // Replace this specific occurrence
-          resolvedPath = resolvedPath.replace(fullMatch, transformedValue)
+          resolvedPath = resolvedPath.replace(fullMatch, transformedValue);
 
           // Reset regex lastIndex to handle multiple occurrences
-          variablePattern.lastIndex = 0
+          variablePattern.lastIndex = 0;
         }
       }
 
       // Extract the file path from the export statement
       // Handle patterns like "export * from './path/to/file'"
-      const importMatch = resolvedPath.match(/from\s+['"`]([^'"`]+)['"`]/)
+      const importMatch = resolvedPath.match(/from\s+['"`]([^'"`]+)['"`]/);
       if (!importMatch) {
-        return false
+        return false;
       }
 
-      let importPath = importMatch[1]
+      let importPath = importMatch[1];
 
       // Convert relative path to absolute - resolve relative to output file's directory
-      const outputDir = path.dirname(outputPath || '.')
+      const outputDir = path.dirname(outputPath || '.');
       if (importPath.startsWith('./')) {
-        importPath = path.join(outputDir, importPath.substring(2))
+        importPath = path.join(outputDir, importPath.substring(2));
       } else if (importPath.startsWith('../')) {
-        importPath = path.resolve(outputDir, importPath)
+        importPath = path.resolve(outputDir, importPath);
       }
 
       // Convert .js extension back to .ts for checking
-      const tsPath = importPath.replace(/\.js$/, '.ts')
-      const exists = fs.existsSync(tsPath)
+      const tsPath = importPath.replace(/\.js$/, '.ts');
+      const exists = fs.existsSync(tsPath);
 
       // Check if the file exists
-      return exists
-    })
+      return exists;
+    });
   }
 
   /**
@@ -522,44 +499,41 @@ export class TemplateEngine {
     template: string,
     variables: Map<string, { value: string; casing: string }>
   ): string {
-    let result = template
+    let result = template;
 
     // Replace each variable with its value, applying chained transformations
     for (const [varName, varData] of variables) {
       // Enhanced pattern matching with chained transformations
       // Supports: {var}, {var:transform}, {var:transform1|transform2|transform3}
-      const variablePattern = new RegExp(`\\{${varName}(?::([^}]+))?\\}`, 'g')
-      let match
+      const variablePattern = new RegExp(`\\{${varName}(?::([^}]+))?\\}`, 'g');
+      let match;
 
       while ((match = variablePattern.exec(result)) !== null) {
-        const fullMatch = match[0]
-        const transformChain = match[1] || '' // Empty string means default (PascalCase)
+        const fullMatch = match[0];
+        const transformChain = match[1] || ''; // Empty string means default (PascalCase)
 
-        let transformedValue = varData.value
+        let transformedValue = varData.value;
 
         if (transformChain) {
           // Split by | to get individual transforms
-          const transforms = transformChain.split('|')
+          const transforms = transformChain.split('|');
 
           for (const transform of transforms) {
-            transformedValue = this.applyTransform(
-              transformedValue,
-              transform.trim()
-            )
+            transformedValue = this.applyTransform(transformedValue, transform.trim());
           }
         } else {
           // Default transformation is PascalCase
-          transformedValue = this.toPascalCase(transformedValue)
+          transformedValue = this.toPascalCase(transformedValue);
         }
 
         // Replace this specific occurrence
-        result = result.replace(fullMatch, transformedValue)
+        result = result.replace(fullMatch, transformedValue);
 
         // Reset regex lastIndex to handle multiple occurrences
-        variablePattern.lastIndex = 0
+        variablePattern.lastIndex = 0;
       }
     }
 
-    return result
+    return result;
   }
 }
