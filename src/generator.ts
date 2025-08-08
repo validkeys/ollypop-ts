@@ -32,6 +32,10 @@ export class BarrelGenerator {
       throw new Error('Barrel definition must have a non-empty name');
     }
 
+    if (this.verbose) {
+      console.log(`🔧 Generating barrel: ${definition.name}`);
+    }
+
     if (!definition.output?.trim()) {
       throw new Error(`Barrel '${definition.name}': output path cannot be empty`);
     }
@@ -77,6 +81,15 @@ export class BarrelGenerator {
         fileCount: 0,
       },
     };
+
+    if (this.verbose) {
+      console.log(`[ollypop] Generating barrel file: ${definition.output}`);
+      console.log(`   Using template: ${definition.template.name}`);
+      console.log('   Context:');
+      Object.entries(context).forEach(([key, value]) => {
+        console.log(`----------- ${key}:`, typeof value === 'object' ? JSON.stringify(value) : value);
+      });
+    }
 
     const content = templateEngine.generate(definition.template.name, context);
 

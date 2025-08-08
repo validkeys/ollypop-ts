@@ -224,9 +224,17 @@ export class TemplateEngine {
     }
 
     const exportTemplate = templateConfig.export;
+    if (ctx.options?.verbose)  {
+      console.log(`[ollypop / template] Using template: ${templateConfig.name}`);
+    }
 
     // Extract path variables from the template
     const pathVariables = this.extractPathVariables(exportTemplate);
+
+    if (ctx.options?.verbose) {
+      console.log(`[ollypop / template] Path variables: ${pathVariables.join(', ')}`);
+    }
+    
 
     if (pathVariables.length === 0) {
       throw new Error(
@@ -239,15 +247,47 @@ export class TemplateEngine {
     // Support both "export * from" and "export * as Name from" patterns
     // Use a more flexible regex to find the 'from' clause and extract the path before variables
     const exportPathMatch = exportTemplate.match(/from ['"]([^'"]*)\{/);
+
     
     if (!exportPathMatch) {
+      // Provide a more helpful error message for common mistakes
+      if (exportTemplate.includes('from ') && !exportTemplate.match(/from ['"][^'"]*['"]/) && !exportTemplate.includes('{')) {
+        // Case: 'from ./path' without quotes
+        const pathMatch = exportTemplate.match(/from\s+([^\s{]+)/);
+        const foundPath = pathMatch ? pathMatch[1] : 'unknown';
+        throw new Error(
+          `Path in export template must be enclosed in quotes. Found: ${foundPath}\n` +
+          `Correct format: export * from "${foundPath}/{variable}" or export * from '${foundPath}/{variable}'`
+        );
+      } else if (exportTemplate.includes('from ') && exportTemplate.match(/from ['"][^'"]*['"]/) && !exportTemplate.includes('{')) {
+        // Case: properly quoted but missing variables
+        const quotedPathMatch = exportTemplate.match(/from ['"]([^'"]+)['"]/);
+        const foundPath = quotedPathMatch ? quotedPathMatch[1] : 'unknown';
+        throw new Error(
+          `Export template path must contain at least one variable in curly braces. Found: ${foundPath}\n` +
+          `Correct format: export * from "${foundPath}/{variable}" or export * from '${foundPath}/{variable}/'`
+        );
+      }
+
+      if (ctx.options?.verbose) {
+        console.warn(`[ollypop / template] No export path found in template: ${exportTemplate}`);
+        console.warn("[ollypop / template] path match", exportPathMatch);
+      }
+
       throw new Error(
-        'Cannot determine path from export template. Expected format: export * from "./path/{variable}/..." or export * as Name from "./path/{variable}/..."'
+        'Cannot determine path from export template. Expected format: export * from "./path/{variable}/..." or export * as Name from "./path/{variable}/..."\n' +
+        'Common issues:\n' +
+        '  - Path must be enclosed in quotes: export * from "./path/{variable}"\n' +
+        '  - Path must contain at least one variable: {variable}\n' +
+        '  - Variables must be in curly braces: {variableName}'
       );
     }
-
+    
     let exportPath = exportPathMatch[1];
-
+    if (ctx.options?.verbose) {
+      console.log(`[ollypop / template] Export path: ${exportPath}`);
+    }
+    
     // Remove the final slash if present
     if (exportPath.endsWith('/')) {
       exportPath = exportPath.slice(0, -1);

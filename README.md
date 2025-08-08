@@ -303,4 +303,67 @@ export * as warehouseProductFactory from './warehouse/product/factory.js';
 export * as retailCustomerFactory from './retail/customer/factory.js';
 ```
 
+## CLI Commands
+
+Ollypop provides several commands for managing barrel file generation:
+
+### Generate
+
+Generate barrel files based on your configuration:
+
+```bash
+ollypop generate [options]
+```
+
+**Options:**
+- `--config <path>` - Path to configuration file (default: "barrel.config.json")
+- `--dry-run` - Preview changes without writing files  
+- `--verbose` - Show detailed generation information
+
+**Example:**
+```bash
+ollypop generate --config my-config.json --verbose
+```
+
+### Validate
+
+Validate your configuration file for syntax errors:
+
+```bash
+ollypop validate [options]  
+```
+
+**Options:**
+- `--config <path>` - Path to configuration file (default: "barrel.config.json")
+
+**Example:**
+```bash
+ollypop validate --config my-config.json
+```
+
+This command validates:
+- Export template syntax (proper quoting, variables)
+- Configuration file structure
+- Path resolution logic
+
+### Initialize
+
+Create a sample configuration file:
+
+```bash
+ollypop init [options]
+```
+
+**Options:**
+- `--config <path>` - Path for new configuration file (default: "barrel.config.json")
+
+## Common Template Errors
+
+If you encounter template syntax errors, see [Export Template Validation](docs/EXPORT_TEMPLATE_VALIDATION.md) for detailed troubleshooting guide.
+
+**Quick fixes for common issues:**
+- Ensure paths are quoted: `"./handlers/{handler}"` not `./handlers/{handler}`
+- Use matching quotes: `"..."` or `'...'` but not mixed
+- Include variables: `{variable}` in curly braces
+
 ---

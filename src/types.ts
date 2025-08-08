@@ -31,10 +31,56 @@ export const ExportConfigSchema = z.object({
   sort: z.boolean().optional().default(true),
 });
 
+// Helper function to validate export template syntax
+function validateExportTemplate(template: string): string {
+  // Check if it's an export statement
+  if (!template.includes('export') || !template.includes('from')) {
+    throw new Error(
+      `Export template must be a valid export statement. Expected format: export * from "./path/{variable}" or export * as Name from "./path/{variable}"`
+    );
+  }
+
+  // Check if the path in the 'from' clause is properly quoted
+  const fromClauseMatch = template.match(/from\s+(['"]?)([^'"\s]+)(['"]?)/);
+  
+  if (!fromClauseMatch) {
+    throw new Error(
+      `Invalid export statement. Expected format: export * from "./path/{variable}" or export * as Name from "./path/{variable}"`
+    );
+  }
+
+  const [, openQuote, pathContent, closeQuote] = fromClauseMatch;
+  
+  // Check if quotes are missing
+  if (!openQuote || !closeQuote) {
+    throw new Error(
+      `Path in export template must be enclosed in quotes. Found: ${pathContent}\nCorrect format: export * from "./path/{variable}" or export * from './path/{variable}'`
+    );
+  }
+
+  // Check if quotes match
+  if (openQuote !== closeQuote) {
+    throw new Error(
+      `Mismatched quotes in export template. Opening quote '${openQuote}' does not match closing quote '${closeQuote}'.\nUse matching single quotes ('...') or double quotes ("...")`
+    );
+  }
+
+  // Check if it contains variables
+  if (!pathContent.includes('{') || !pathContent.includes('}')) {
+    throw new Error(
+      `Export template path must contain at least one variable in curly braces {variable}. Found path: ${pathContent}`
+    );
+  }
+
+  return template;
+}
+
 // Template Configuration - New variable-based system
 export const TemplateConfigSchema = z.object({
   name: z.string(),
-  export: z.string(), // Full export template with path variables
+  export: z.string().refine(validateExportTemplate, {
+    message: "Invalid export template syntax"
+  }), // Full export template with path variables - validated for proper quoting
   mode: z.enum(['replace', 'partial-replace']).default('replace'),
   requiredFile: z.string().optional(), // Only include directories containing this file
 });
