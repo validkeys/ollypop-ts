@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.1.0
+
+### Minor Changes
+
+- **Features:**
+  - Added export template validation: Templates now require paths in the `export` statement to be enclosed in single or double quotes. If not, a clear error message is shown, preventing confusing runtime errors. This helps users catch misconfigurations early and ensures generated barrel files are always valid.
+  - Added change detection: Barrel files are only written if there is a meaningful difference between the existing and generated content. This prevents unnecessary file writes, reduces build times, and avoids triggering file watchers or CI/CD pipelines when nothing has changed.
+
+  **Improvements:**
+  - Partial-replace mode now preserves all custom code outside the auto-generated section and only updates the marked region. If the generated exports are unchanged, the file is not rewritten.
+  - Verbose mode provides clear feedback when files are created, updated, or skipped due to no changes.
+
+  **Usage Notes:**
+  - If you see `Skipped (no changes)` in verbose mode, your barrel file was already up-to-date and was not rewritten.
+  - If your export template path is not quoted, you will receive a helpful error message with the correct format.
+
+  **Why this matters:**
+  - Prevents accidental overwrites and unnecessary file system operations
+  - Improves developer experience with clearer errors and feedback
+  - Makes ollypop-ts safer and more efficient for use in automated environments
+
 ## 1.0.5
 
 ### Patch Changes
