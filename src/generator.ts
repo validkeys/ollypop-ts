@@ -12,13 +12,15 @@ import type {
 export class BarrelGenerator {
   private scanner: FileScanner;
   private templateEngine: TemplateEngine;
+  private verbose: boolean = false;
 
   constructor() {
     this.scanner = new FileScanner();
     this.templateEngine = new TemplateEngine();
   }
 
-  async generateBarrels(definitions: BarrelDefinition[]): Promise<void> {
+  async generateBarrels(definitions: BarrelDefinition[], options?: { verbose?: boolean }): Promise<void> {
+    this.verbose = options?.verbose ?? false;
     for (const definition of definitions) {
       await this.generateBarrel(definition);
     }
@@ -65,6 +67,7 @@ export class BarrelGenerator {
         sortExports: true,
         addBanner: true,
         customBanner: undefined,
+        verbose: this.verbose,
       },
       outputPath: definition.output,
       templateConfig: definition.template,

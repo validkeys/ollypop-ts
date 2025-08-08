@@ -81,7 +81,7 @@ program
 
       // Generate barrels
       const generator = new BarrelGenerator();
-      await generator.generateBarrels(config.barrels);
+      await generator.generateBarrels(config.barrels, { verbose });
 
       if (!silent) {
         console.log(`✅ Barrel generation complete!`);

@@ -269,7 +269,12 @@ export class TemplateEngine {
         workingDirectory = path.join(outputDir, relativePath);
       }
     } else if (exportPath.startsWith('../')) {
-      throw new Error('Export templates cannot use parent directory references (../)');
+      // Path uses parent directory references - resolve relative to output file's directory
+      const outputDir = path.dirname(outputPath || '.');
+      // Ensure we resolve from the current working directory, not as an absolute path
+      const cwd = process.cwd();
+      const absoluteOutputDir = path.resolve(cwd, outputDir);
+      workingDirectory = path.resolve(absoluteOutputDir, exportPath);
     } else {
       // Absolute path or no leading ./
       // For cases like "." (current directory), use the output directory instead
@@ -297,6 +302,11 @@ export class TemplateEngine {
 
     // Generate export statements
     const lines: string[] = [];
+
+    // Verbose mode: print the path to the barrel file being generated
+    if (ctx.options?.verbose) {
+      console.log(`[ollypop] Generating barrel file: ${outputPath}`);
+    }
 
     for (const pathMatch of filteredPaths) {
       const resolvedExport = this.resolveVariableTemplate(exportTemplate, pathMatch.variables);

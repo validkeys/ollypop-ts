@@ -55,6 +55,7 @@ export const GenerationOptionsSchema = z
     sortExports: z.boolean().default(true),
     addBanner: z.boolean().default(true),
     customBanner: z.string().optional(),
+    verbose: z.boolean().default(false),
   })
   .strict();
 

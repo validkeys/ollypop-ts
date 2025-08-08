@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.0.3
+
+### Patch Changes
+
+- Enhanced template engine with verbose mode and parent directory support
+
+  ### Features Added
+  - **Verbose Mode**: Added `--verbose` flag to CLI that prints the path to each barrel file being generated
+  - **Parent Directory Support**: Removed restriction against using parent directory references (`../`) in export templates, enabling real-world monorepo use cases
+
+  ### Bug Fixes
+  - **Template Engine**: Fixed parent directory path resolution to properly handle `../` paths relative to output file directory
+  - **Path Resolution**: Enhanced path resolution logic to work correctly with complex directory structures
+
+  ### Examples Added
+  - **Factory Pattern**: Created comprehensive example demonstrating `export * as Name from` syntax with variable transformations
+  - **Real-World Factories**: Added example showcasing parent directory references and complex chained transformations (`trimPrefix|singular|pascal`)
+
+  ### Technical Improvements
+  - Updated `GenerationOptions` schema to include `verbose` boolean flag
+  - Enhanced CLI to pass verbose option through to template engine
+  - Improved error messages to support both `export * from` and `export * as Name from` patterns
+  - Added proper TypeScript type definitions for all new options
+
+  This release enables ollypop to support more complex project structures while providing better visibility into the generation process.
+
+## 1.0.3 (Unreleased)
+
+### Patch Changes
+
+- Enhanced template engine with verbose mode and parent directory support
+  - **Verbose Mode**: Added `--verbose` flag to CLI that prints the path to each barrel file being generated
+  - **Parent Directory Support**: Removed restriction against using parent directory references (`../`) in export templates, enabling real-world monorepo use cases
+  - **Bug Fixes**: Fixed parent directory path resolution to properly handle `../` paths relative to output file directory
+  - **Examples Added**: Created factory pattern and real-world factories examples demonstrating advanced features
+  - **Technical Improvements**: Updated GenerationOptions schema, enhanced CLI option passing, improved error messages
+
 ## 1.0.2
 
 ### Patch Changes

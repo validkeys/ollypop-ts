@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "barrels": [
+    {
+      "name": "factories",
+      "output": "./src/barrel-exports/factories.ts",
+      "template": {
+        "name": "variable-template",
+        "export": "export * as {dirName:trimPrefix:warehouse-,ops-|singular|pascal}Factory from '../packages/{dirName:raw}/test-utils/factory.js'"
+      },
+      "options": {
+        "preserveExtensions": true,
+        "extensions": [".ts"],
+        "validateExports": false,
+        "dryRun": false
+      }
+    }
+  ]
+}
