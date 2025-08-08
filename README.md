@@ -1,10 +1,10 @@
-# Internal Barrel Maker
+# Ollypop
 
 > **Automatic TypeScript Barrel File Generation**
 
 ## Overview
 
-Internal Barrel Maker is a CLI tool for generating TypeScript barrel files (`index.ts`) automatically. It uses a powerful variable-based template system to scan directories and files, creating export statements based on your configuration. The system supports both directory-based and file-based patterns, with intelligent file existence filtering and path resolution relative to the output file location.
+Ollypop is a CLI tool for generating TypeScript barrel files (`index.ts`) automatically. It uses a powerful variable-based template system to scan directories and files, creating export statements based on your configuration. The system supports both directory-based and file-based patterns, with intelligent file existence filtering and path resolution relative to the output file location.
 
 ## Features
 
@@ -24,12 +24,12 @@ Internal Barrel Maker is a CLI tool for generating TypeScript barrel files (`ind
    ```
 2. **Create a configuration file**
    ```bash
-   pnpm exec internal-barrel-maker init
+   pnpm exec ollypop init
    # Or copy and edit barrel.config.json
    ```
 3. **Generate barrels**
    ```bash
-   pnpm exec internal-barrel-maker generate
+   pnpm exec ollypop generate
    ```
 
 ## Configuration

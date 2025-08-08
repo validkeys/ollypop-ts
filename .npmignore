@@ -1,0 +1,7 @@
+# Ignore test, config, and example files from npm package
+src/**/*.test.ts
+src/**/*.spec.ts
+examples/
+barrel.config.json
+pnpm-lock.yaml
+README.md

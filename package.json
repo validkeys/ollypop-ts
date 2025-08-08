@@ -1,11 +1,10 @@
 {
-  "name": "@spark/internal-barrel-maker",
+  "name": "ollypop-ts",
   "version": "1.0.0",
-  "description": "Centralized barrel file generator for Spark monorepo",
-  "main": "src/index.ts",
-  "type": "module",
+  "main": "dist/index.js",
+  "type": "commonjs",
   "bin": {
-    "barrel-maker": "./src/cli.ts"
+    "ollypop": "dist/cli.js"
   },
   "scripts": {
     "dev": "tsx --watch src/index.ts",
@@ -15,14 +14,26 @@
     "lint:ts": "npx tsc --noEmit",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json}\" \"*.{js,jsx,ts,tsx,json,md}\" \"**/*.config.{js,ts}\"",
     "barrel": "tsx src/cli.ts",
-    "example:simple": "cd examples/simple && tsx ../../src/cli.ts",
-    "example:complex": "cd examples/complex && tsx ../../src/cli.ts",
-    "example:types": "cd examples/types-only && tsx ../../src/cli.ts"
+    "build": "tsc --outDir dist",
+    "prepublishOnly": "pnpm run lint:ts && pnpm run test",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "publish-packages": "changeset publish",
+    "release": "pnpm run build && pnpm run version-packages && pnpm run publish-packages"
   },
   "exports": {
-    "types": "./src/index.ts",
-    "import": "./src/index.ts",
-    "require": "./src/index.ts"
+    "import": "./dist/index.js",
+    "require": "./dist/index.js"
+  },
+  "description": "Automatic TypeScript barrel file generator CLI.",
+  "author": "Kyle Davis <kyledavis@validkeys.io>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/validkeys/ollypop-ts.git"
+  },
+  "homepage": "https://github.com/validkeys/ollypop-ts#readme",
+  "bugs": {
+    "url": "https://github.com/validkeys/ollypop-ts/issues"
   },
   "keywords": [
     "barrel",
@@ -30,9 +41,13 @@
     "typescript",
     "generator"
   ],
-  "author": "",
+  "files": [
+    "dist",
+    "src/cli.ts"
+  ],
   "license": "ISC",
   "devDependencies": {
+    "@changesets/cli": "^2.29.5",
     "@types/node": "22.15.31",
     "tsx": "^4.19.2",
     "typescript": "5.8.3",
