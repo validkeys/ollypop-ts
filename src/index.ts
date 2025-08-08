@@ -1,0 +1,5 @@
+export { configExists, createConfig, loadConfig } from './config-loader.js'
+export { BarrelGenerator } from './generator.js'
+export { FileScanner } from './scanner.js'
+export { TemplateEngine } from './templates.js'
+export * from './types.js'
