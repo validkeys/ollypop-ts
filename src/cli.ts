@@ -4,13 +4,17 @@ import { Command } from 'commander';
 import { promises as fs } from 'fs';
 import { loadConfig } from './config-loader.js';
 import { BarrelGenerator } from './generator.js';
+import { createRequire } from 'module';
 
 const program = new Command();
+
+const require = createRequire(import.meta.url);
+const { version } = require('../package.json');
 
 program
   .name('ollypop')
   .description('Generate barrel files for TypeScript projects')
-  .version('1.0.0');
+  .version(version);
 
 program
   .command('generate')
