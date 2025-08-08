@@ -31,6 +31,17 @@ Ollypop is a CLI tool for generating TypeScript barrel files (`index.ts`) automa
    ```bash
    pnpm exec ollypop generate
    ```
+4. **Run examples**
+   ```bash
+   # Run all examples to see different patterns
+   pnpm run examples
+   
+   # Or run individual examples
+   pnpm run example:basic              # File-based without extensions
+   pnpm run example:directory          # Directory-based without extensions
+   pnpm run example:with-extensions    # File-based with .js extensions
+   pnpm run example:directory-extensions # Directory-based with .js extensions
+   ```
 
 ## Configuration
 

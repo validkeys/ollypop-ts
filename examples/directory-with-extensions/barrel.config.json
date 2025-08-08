@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "barrels": [
+    {
+      "name": "services",
+      "output": "./services/index.js",
+      "template": {
+        "name": "variable-template",
+        "export": "export * from './{dir:raw}/service.js'"
+      },
+      "options": {
+        "preserveExtensions": true,
+        "extensions": [".ts"],
+        "validateExports": false,
+        "dryRun": false
+      }
+    }
+  ]
+}

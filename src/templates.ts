@@ -237,6 +237,7 @@ export class TemplateEngine {
     // Determine working directory from the export template pattern
     // Extract the base path before the first variable
     const exportPathMatch = exportTemplate.match(/^export \* from ['"](.+?)\{/);
+    
     if (!exportPathMatch) {
       throw new Error(
         'Cannot determine path from export template. Expected format: export * from "./path/{variable}/..."'
@@ -258,7 +259,7 @@ export class TemplateEngine {
       const outputDir = path.dirname(outputPath || '.');
       const relativePath = exportPath.substring(2); // Remove './'
 
-      if (!relativePath || relativePath === '.') {
+      if (!relativePath || relativePath === '.' || relativePath === '') {
         // export * from './{variable}/...' - scan from output directory
         workingDirectory = outputDir;
       } else {
@@ -269,7 +270,12 @@ export class TemplateEngine {
       throw new Error('Export templates cannot use parent directory references (../)');
     } else {
       // Absolute path or no leading ./
-      workingDirectory = exportPath || '.';
+      // For cases like "." (current directory), use the output directory instead
+      if (exportPath === '.') {
+        workingDirectory = path.dirname(outputPath || '.');
+      } else {
+        workingDirectory = exportPath || '.';
+      }
     }
 
     // Scan for matching directory structures or files
@@ -325,7 +331,11 @@ export class TemplateEngine {
   private isFileBasedPattern(template: string): boolean {
     // Look for patterns like {variable}.ext where ext is a common file extension
     const fileExtensionPattern = /\{[^}:]+(?::[^}]+)?\}\.(ts|js|tsx|jsx|json|md)(?:['"`]|$)/;
-    return fileExtensionPattern.test(template);
+    
+    // Also look for patterns using the word "file" as a variable name
+    const fileVariablePattern = /\{file(?::[^}]+)?\}/;
+    
+    return fileExtensionPattern.test(template) || fileVariablePattern.test(template);
   }
 
   /**

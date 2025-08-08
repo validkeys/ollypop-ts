@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "barrels": [
+    {
+      "name": "modules",
+      "output": "./modules/index.js",
+      "template": {
+        "name": "variable-template",
+        "export": "export * from './{file:raw}.js'"
+      },
+      "options": {
+        "preserveExtensions": true,
+        "extensions": [".ts", ".tsx"],
+        "validateExports": false,
+        "dryRun": false
+      }
+    }
+  ]
+}

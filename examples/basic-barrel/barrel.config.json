@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "barrels": [
+    {
+      "name": "components",
+      "output": "./components/index.ts",
+      "template": {
+        "name": "variable-template",
+        "export": "export * from './{file:raw}'"
+      },
+      "options": {
+        "preserveExtensions": true,
+        "extensions": [".ts", ".tsx"],
+        "validateExports": false,
+        "dryRun": false
+      }
+    }
+  ]
+}

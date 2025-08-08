@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "barrels": [
+    {
+      "name": "handlers",
+      "output": "./handlers/index.ts",
+      "template": {
+        "name": "variable-template",
+        "export": "export * from './{dir:raw}'"
+      },
+      "options": {
+        "preserveExtensions": false,
+        "extensions": [".ts"],
+        "validateExports": false,
+        "dryRun": false
+      }
+    }
+  ]
+}
