@@ -301,6 +301,10 @@ export class TemplateEngine {
       const outputDir = path.dirname(outputPath || '.');
       const relativePath = exportPath.substring(2); // Remove './'
 
+      if (ctx.options?.verbose) {
+        console.log(`[ollypop / template] outputDir: ${outputDir}, relativePath: "${relativePath}"`);
+      }
+
       if (!relativePath || relativePath === '.' || relativePath === '') {
         // export * from './{variable}/...' - scan from output directory
         workingDirectory = outputDir;
@@ -325,12 +329,17 @@ export class TemplateEngine {
       }
     }
 
+    if (ctx.options?.verbose) {
+      console.log(`[ollypop / template] Working directory: ${workingDirectory}`);
+    }
+
     // Scan for matching directory structures or files
     const matchingPaths = this.findMatchingPaths(
       workingDirectory,
       pathVariables,
       exportTemplate,
-      outputPath
+      outputPath,
+      ctx.options?.verbose
     );
 
     // Filter to only include paths where the target file actually exists
@@ -377,8 +386,9 @@ export class TemplateEngine {
 
   /**
    * Detect if this is a file-based pattern by checking if variables are followed by file extensions
-   * e.g., "export * from './{file}.ts'" -> true
-   * e.g., "export * from './{dir}/index.ts'" -> false
+   * e.g., "export * from './{file}.ts'" -> true (explicit extension)
+   * e.g., "export * from './{service}'" -> true (variable at end of path, likely files)
+   * e.g., "export * from './{dir}/index.ts'" -> false (variable followed by path)
    */
   private isFileBasedPattern(template: string): boolean {
     // Look for patterns like {variable}.ext where ext is a common file extension
@@ -387,7 +397,11 @@ export class TemplateEngine {
     // Also look for patterns using the word "file" as a variable name
     const fileVariablePattern = /\{file(?::[^}]+)?\}/;
     
-    return fileExtensionPattern.test(template) || fileVariablePattern.test(template);
+    // Look for patterns where variable is at the end of the path (no / after it)
+    // This indicates we're looking for files where the filename becomes the variable
+    const variableAtEndPattern = /\{[^}:]+(?::[^}]+)?\}['"`]?\s*$/;
+    
+    return fileExtensionPattern.test(template) || fileVariablePattern.test(template) || variableAtEndPattern.test(template);
   }
 
   /**
@@ -397,7 +411,8 @@ export class TemplateEngine {
     cwd: string,
     pathVariables: string[],
     exportTemplate: string,
-    outputPath?: string
+    outputPath?: string,
+    verbose?: boolean
   ): Array<{
     path: string;
     variables: Map<string, { value: string; casing: string }>;
@@ -410,8 +425,17 @@ export class TemplateEngine {
     try {
       const entries = fs.readdirSync(cwd, { withFileTypes: true });
 
+      if (verbose) {
+        console.log(`[ollypop / template] Scanning directory: ${cwd}`);
+        console.log(`[ollypop / template] Found entries:`, entries.map(e => e.name));
+      }
+
       // Determine if we're scanning for files or directories based on the export template
       const isFileBasedPattern = this.isFileBasedPattern(exportTemplate);
+
+      if (verbose) {
+        console.log(`[ollypop / template] Is file-based pattern: ${isFileBasedPattern}`);
+      }
 
       if (isFileBasedPattern) {
         // Scan for files when pattern includes file extensions
@@ -419,11 +443,18 @@ export class TemplateEngine {
           .filter((entry: any) => entry.isFile() && entry.name.endsWith('.ts'))
           .map((entry: any) => entry.name);
 
+        if (verbose) {
+          console.log(`[ollypop / template] Found .ts files:`, files);
+        }
+
         // For single variable {file}, map each file (without extension)
         if (pathVariables.length === 1) {
           for (const file of files) {
             // Skip the output file itself to avoid self-reference
             if (outputPath && path.basename(outputPath) === file) {
+              if (verbose) {
+                console.log(`[ollypop / template] Skipping output file: ${file}`);
+              }
               continue;
             }
 
@@ -431,6 +462,10 @@ export class TemplateEngine {
             const variables = new Map([
               [pathVariables[0], { value: fileNameWithoutExt, casing: 'raw' }],
             ]);
+
+            if (verbose) {
+              console.log(`[ollypop / template] Adding file: ${file} -> variable: ${fileNameWithoutExt}`);
+            }
 
             results.push({
               path: `${cwd}/${file}`,

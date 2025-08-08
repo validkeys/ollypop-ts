@@ -144,6 +144,8 @@ export class BarrelGenerator {
         // File doesn't exist, that's fine
       }
 
+      console.log(`Found existing content`, existingContent)
+
       // Extract content between markers if they exist
       const startMarker = markers.startMarker || '// AUTO-GENERATED EXPORTS - START';
       const endMarker = markers.endMarker || '// AUTO-GENERATED EXPORTS - END';
@@ -175,7 +177,7 @@ export class BarrelGenerator {
           .join('\n');
       } else {
         // Create new file with markers
-        updatedContent = [startMarker, '', banner + content.trim(), '', endMarker].join('\n');
+        updatedContent = [existingContent, startMarker, '', banner + content.trim(), '', endMarker].join('\n');
       }
 
       // Write updated content

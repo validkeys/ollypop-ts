@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "barrels": [
+    {
+      "name": "services-barrel",
+      "output": "./src/services/index.ts",
+      "template": {
+        "name": "variable-template",
+        "export": "export * from './{service}'",
+        "mode": "partial-replace"
+      }
+    }
+  ]
+}
